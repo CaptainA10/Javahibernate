@@ -1,28 +1,37 @@
 package bo;
-import dao.LivreDAO;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
+
+import jakarta.persistence.*;
+import java.util.List;
 
 public class Main {
-
     public static void main(String[] args) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("bibliothequePU"); // Ton persistence.xml doit avoir ce nom
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("bibliothequePU");
         EntityManager em = emf.createEntityManager();
 
-        LivreDAO livreDAO = new LivreDAO(em);
+        try {
+            // 1. Trouver un emprunt avec ses livres
+            System.out.println("=== Emprunt avec livres ===");
+            Emprunt emprunt = em.find(Emprunt.class, 1L);
+            if (emprunt != null) {
+                System.out.println("Emprunt ID: " + emprunt.getId());
+                System.out.println("Livres associés:");
+                for (Livre livre : emprunt.getLivres()) {
+                    System.out.println("- " + livre.getTitre());
+                }
+            }
 
-        em.getTransaction().begin();
-        Livre livre = livreDAO.findById(1L);
-        em.getTransaction().commit();
-
-        if (livre != null) {
-            System.out.println("Livre trouvé : " + livre.getTitre() + " par " + livre.getAuteur());
-        } else {
-            System.out.println("Aucun livre trouvé.");
+            // 2. Trouver les emprunts d'un client
+            System.out.println("\n=== Emprunts d'un client ===");
+            Client client = em.find(Client.class, 1L);
+            if (client != null) {
+                System.out.println("Client: " + client.getNom());
+                for (Emprunt e : client.getEmprunts()) {
+                    System.out.println("- Emprunt ID: " + e.getId());
+                }
+            }
+        } finally {
+            em.close();
+            emf.close();
         }
-
-        em.close();
-        emf.close();
     }
 }

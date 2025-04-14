@@ -1,26 +1,30 @@
 package bo;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "LIVRE")
 public class Livre {
-
     @Id
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
+    @Column(name = "TITRE", nullable = false)
     private String titre;
+
+    @Column(name = "AUTEUR", nullable = false)
     private String auteur;
 
+    @ManyToMany(mappedBy = "livres")
+    private List<Emprunt> emprunts = new ArrayList<>();
+
     // Getters & Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
+    public Integer getId() { return id; }
     public String getTitre() { return titre; }
-    public void setTitre(String titre) { this.titre = titre; }
-
     public String getAuteur() { return auteur; }
+
+    public void setTitre(String titre) { this.titre = titre; }
     public void setAuteur(String auteur) { this.auteur = auteur; }
 }
